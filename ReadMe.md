@@ -1,12 +1,14 @@
 Pre-requistics to simulationGFI.py:
 
-a) export path to seq-gen source:
+a) Export path to seq-gen source:
 	export PATH=/path/to/seq-gen/source-folder:$PATH
 
-b) export path to jprime jar file:
+b) Export path to jprime jar file:
 	PATH=/path/to/jprime-X.X.X.jar:$PATH
 	
 c) pip install argparse (if not installed on your computer)
+
+
 
 
 Help Options:
