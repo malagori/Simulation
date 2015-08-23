@@ -45,7 +45,6 @@ def generateGTreesAndAlignmets(work_dir, outFile, sTree, seed, dup, trans, loss,
     # check if path exists
     print jarFileName
     cmd= Where(jarFileName)
-    #cmd= '/Users/malagori/Documents/Academic/project/infer-gfamily-project/data/simulation/jars/jprime-0.3.4.d.jar'
     if cmd != None:
         gTree= os.path.join(work_dir, outFile)
         brGTree= os.path.join(work_dir, outFile+".relaxed.tree")
