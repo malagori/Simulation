@@ -1,27 +1,23 @@
-Pre-requistics to simulationGFI.py:
+# simulationGFS: a frontend to GenPhyloData and Seq-Gen
 
-a) Export path to seq-gen source:
-	export PATH=/path/to/seq-gen/source-folder:$PATH
+Pre-requisites to simulationGFS.py:
 
-b) Export path to jprime jar file:
-	PATH=/path/to/jprime-X.X.X.jar:$PATH
-	
-c) pip install argparse (if not installed on your computer)
+1. Add path for seq-gen source:  `export PATH=/path/to/seq-gen/source-folder:$PATH`
+2. Add path for jprime jar file: `export PATH=/path/to/jprime-X.X.X.jar:$PATH `
+3. If needed, install Python module ArgParse: `pip install argparse`
 
+## Options
 
-
-
-Help Options:
-
+``` 
 $ python simulateGTS.py --help
 usage: simulateGTS.py [-h] [-stree speciesTree] [-j jprime] [-d dup] [-l loss]
                       [-tr trans] [-O outdir] [-k shape] [-t theta]
                       [-n ntrees] [-s seed]
-
+```
 Parse input arguments and print output. NOTE: you need to export poath to
 jprime jar file and seq-gen exe.
 
-optional arguments:
+### Optional arguments
   -h, --help          show this help message and exit
   -stree speciesTree  Specify path to the species tree file.
   -j jprime           Specify the name of the jprime jar file i.e.
