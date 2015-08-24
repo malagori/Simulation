@@ -14,10 +14,11 @@ usage: simulateGTS.py [-h] [-stree speciesTree] [-j jprime] [-d dup] [-l loss]
                       [-tr trans] [-O outdir] [-k shape] [-t theta]
                       [-n ntrees] [-s seed]
 ```
-Parse input arguments and print output. NOTE: you need to export poath to
-jprime jar file and seq-gen exe.
+Parse input arguments and print output. NOTE: you need to ensure that
+jprime jar file and seq-gen exe are in the path, see above.
 
 ### Optional arguments
+```
   -h, --help          show this help message and exit
   -stree speciesTree  Specify path to the species tree file.
   -j jprime           Specify the name of the jprime jar file i.e.
@@ -32,3 +33,4 @@ jprime jar file and seq-gen exe.
                       branch relaxation.
   -n ntrees           Specify the number of gene trees to be generated
   -s seed             Specify seed. default=121
+```
