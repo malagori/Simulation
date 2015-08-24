@@ -42,49 +42,47 @@ def generateGTreesAndAlignmets(work_dir, outFile, sTree, seed, dup, trans, loss,
     '''
     this function will call GenPhyloData to generate gtrees and the call seq-gen to generate sequences
     '''
+
+    logfilename=os.path.join(work_dir, outFile + ".log")
+    logfile=open(logfilename, "w") or die("Could not create file '" + logfilename + "'")
     # check if path exists
-    print jarFileName
     cmd= Where(jarFileName)
     if cmd != None:
         gTree= os.path.join(work_dir, outFile)
         brGTree= os.path.join(work_dir, outFile+".relaxed.tree")
-        null = open("/dev/null")
-        print "--> GenPhyloData begins..."
+        print "--> GenPhyloData " + outFile
         try:
-            subprocess.call("java -jar "+cmd+ " GuestTreeGen -s "+ str(seed) + " -minper "+str(minper)+" -max 1000 -a 10000000 "+ sTree+ " "+ str(dup) + " "+ str(loss)+ " "+ str(trans) +" "+ gTree, shell=(sys.platform!="win32"), stdout=True, stderr=True)
+            subprocess.call("java -jar "+cmd+ " GuestTreeGen -s "+ str(seed) + " -minper "+str(minper)+" -max 1000 -a 10000000 "+ sTree+ " "+ str(dup) + " "+ str(loss)+ " "+ str(trans) +" "+ gTree, shell=(sys.platform!="win32"), stdout=True, stderr=logfile)
             
         except IOError, e:
             print ("Function: generateGTreesAndAlignmets: %s " % e)
-        print "--> GenPhyloData ends..."
-        print "--> Branch Relaxation begins..."
+        print "--> Branch Relaxation"
         try:
             seed += 11
             #varying branch length
-            subprocess.call("java -jar "+cmd+ " BranchRelaxer -s "+ str(seed) + " "+ gTree+".pruned.tree " +"IIDGamma "+ str(k)+ " "+ str(theta) +" -o " +brGTree, shell=(sys.platform!="win32"), stdout=True, stderr=True)
-            subprocess.call("java -jar "+cmd+ " BranchRelaxer -x -innms -s "+ str(seed) + " "+ gTree+".pruned.tree " +"IIDGamma "+ str(k)+ " "+ str(theta) +" -o " +brGTree+".no.primeid", shell=(sys.platform!="win32"), stdout=True, stderr=True)
+            subprocess.call("java -jar "+cmd+ " BranchRelaxer -s "+ str(seed) + " "+ gTree+".pruned.tree " +"IIDGamma "+ str(k)+ " "+ str(theta) +" -o " +brGTree, shell=(sys.platform!="win32"), stdout=True, stderr=logfile)
+            subprocess.call("java -jar "+cmd+ " BranchRelaxer -x -innms -s "+ str(seed) + " "+ gTree+".pruned.tree " +"IIDGamma "+ str(k)+ " "+ str(theta) +" -o " +brGTree+".no.primeid", shell=(sys.platform!="win32"), stdout=True, stderr=logfile)
             # for constant rates
-            #subprocess.call("java -jar "+cmd+ " BranchRelaxer -s "+ str(seed) + " "+ gTree+".pruned.tree " +"Constant "+ str(1)+" -o " +brGTree, shell=(sys.platform!="win32"), stdout=True, stderr=True)
-            #subprocess.call("java -jar "+cmd+ " BranchRelaxer -x -innms -s "+ str(seed) + " "+ gTree+".pruned.tree " +"Constant "+ str(1)+" -o " +brGTree+".no.primeid", shell=(sys.platform!="win32"), stdout=True, stderr=True)
+            #subprocess.call("java -jar "+cmd+ " BranchRelaxer -s "+ str(seed) + " "+ gTree+".pruned.tree " +"Constant "+ str(1)+" -o " +brGTree, shell=(sys.platform!="win32"), stdout=True, stderr=logfile)
+            #subprocess.call("java -jar "+cmd+ " BranchRelaxer -x -innms -s "+ str(seed) + " "+ gTree+".pruned.tree " +"Constant "+ str(1)+" -o " +brGTree+".no.primeid", shell=(sys.platform!="win32"), stdout=True, stderr=logfile)
             
         except IOError, e:
             print ("Function: generateGTreesAndAlignmets: %s " % e)
-        print "--> Branch Relaxation ends..."
         
     else:
-        print ("generateGTreesAndAlignmets: Error: Path to JPrIme.jar is not set ") 
+        print("generateGTreesAndAlignments: Error: Path to JPrIme.jar is not set ") 
         sys.exit()
         
         
     cmd= Where('seq-gen')
     if cmd != None:
-        
-        null = open("/dev/null")
         seed += 11
-        subprocess.call(cmd+ " -mJTT -z "+ str(seed) + " -l " + str(msa_len) + " < "+ brGTree +" > "+ work_dir+"/"+outFile+".phylip", shell=(sys.platform!="win32"), stdout=False, stderr=True)
+        subprocess.call(cmd+ " -mJTT -z "+ str(seed) + " -l " + str(msa_len) + " < "+ brGTree +" > "+ work_dir+"/"+outFile+".phylip", shell=(sys.platform!="win32"), stdout=False, stderr=logfile)
         
     else:
         print ("generateGTreesAndAlignmets: Error: Path to seq-gen is not set ") 
         sys.exit()
+    logfile.close()
         
 def main(argv):
     parser = argparse.ArgumentParser(description="Parse input arguments and print output. NOTE: you need to export poath to jprime jar file and seq-gen exe.")
@@ -135,11 +133,11 @@ def main(argv):
         wf.write("Trans rate: %f\n" %(trans))
         wf.write("MSA length: %d\n" %(msa_len))        
         
-    print "-->Simulation starts"
+#    print "-->Simulation starts"
     for i in xrange(1, nTrees+1):
         seed += 11
         generateGTreesAndAlignmets(workDir, str(i), sTree, seed, dup, trans, loss, theta, k, min_per_leaf, msa_len, jarFileName)
-    print "-->Simulation Done"
+#    print "-->Simulation Done"
 
 if __name__ == '__main__':
     main(sys.argv[1:])
