@@ -38,7 +38,7 @@ def Where(program):
                 return pathToProgram
     return None
 
-def generateGTreesAndAlignmets(work_dir, outFile, sTree, seed, dup, trans, loss, theta, k, minper, jarFileName):
+def generateGTreesAndAlignmets(work_dir, outFile, sTree, seed, dup, trans, loss, theta, k, minper, msa_len, jarFileName):
     '''
     this function will call GenPhyloData to generate gtrees and the call seq-gen to generate sequences
     '''
@@ -80,7 +80,7 @@ def generateGTreesAndAlignmets(work_dir, outFile, sTree, seed, dup, trans, loss,
         
         null = open("/dev/null")
         seed += 11
-        subprocess.call(cmd+ " -mJTT -z "+ str(seed) + " -l 1000 < "+ brGTree +" > "+ work_dir+"/"+outFile+".phylip", shell=(sys.platform!="win32"), stdout=False, stderr=True)
+        subprocess.call(cmd+ " -mJTT -z "+ str(seed) + " -l " + str(msa_len) + " < "+ brGTree +" > "+ work_dir+"/"+outFile+".phylip", shell=(sys.platform!="win32"), stdout=False, stderr=True)
         
     else:
         print ("generateGTreesAndAlignmets: Error: Path to seq-gen is not set ") 
@@ -88,30 +88,34 @@ def generateGTreesAndAlignmets(work_dir, outFile, sTree, seed, dup, trans, loss,
         
 def main(argv):
     parser = argparse.ArgumentParser(description="Parse input arguments and print output. NOTE: you need to export poath to jprime jar file and seq-gen exe.")
-    parser.add_argument('-stree', metavar='speciesTree' ,type=str, help='Specify path to the species tree file. ')
+    parser.add_argument('-H', metavar='treefile' ,type=str, help='Specify path to the host (species) tree file. ')
     parser.add_argument('-j', metavar='jprime' ,type=str, help='Specify the name of the jprime jar file i.e. jprime-0.3.5.jar.')
     parser.add_argument('-d', metavar='dup' ,type=float, help='Specify duplication rate.default=0.5', default=0.5)
-    parser.add_argument('-l', metavar='loss' ,type=float, help='Specify loss rate.default=0.5', default=0.5)
-    parser.add_argument('-tr', metavar='trans' ,type=float, help='Specify transfer rate.default=0.5', default=0.5)
+    parser.add_argument('-l', metavar='loss' ,type=float, help='Specify loss rate. Default=0.5', default=0.5)
+    parser.add_argument('-t', metavar='trans' ,type=float, help='Specify transfer rate. Default=0.5', default=0.5)
+    parser.add_argument('-m', metavar='msa_len', type=int, help='Specify alignment (sequence) length', default=1000)
     parser.add_argument('-O', metavar='outdir' ,type=str, help='Specify path to the output directory. ')
     parser.add_argument('-k', metavar='shape' ,type=float, help='Specify Shape parameter for IIDGamma distribution for branch relaxation.', default=2.0)
-    parser.add_argument('-t', metavar='theta' ,type=float, help='Specify Theta parameter for IIDGamma distribution for branch relaxation.', default=0.5)
+    parser.add_argument('-theta', metavar='theta' ,type=float, help='Specify Theta parameter for IIDGamma distribution for branch relaxation.', default=0.5)
     parser.add_argument('-n', metavar='ntrees' ,type=int, help='Specify the number of gene trees to be generated', default=100)
     parser.add_argument('-s', metavar='seed' ,type=int, help='Specify seed. default=121', default=121)
+    parser.add_argument('-mingenesperleaf', metavar='n', type=int, help='Minimum number of genes per leaf in the host tree.', default=1)
     
     args = parser.parse_args()
     
-    sTree           = args.stree
+    sTree           = args.H
     workDir        = args.O
     k               = args.k
-    theta           = args.t
+    theta           = args.theta
     nTrees          = args.n
     seed= args.s
     dup= args.d
     loss= args.l
-    trans= args.tr
+    trans= args.t
+    msa_len= args.m
     jarFileName= args.j
     seed= args.s
+    min_per_leaf=args.mingenesperleaf
     
     if workDir == None:
         workDir=tempfile.mkdtemp()
@@ -128,23 +132,13 @@ def main(argv):
         wf.write("Initial Seed: %d\n" %(seed))
         wf.write("Duplication rate: %f\n" %(dup))
         wf.write("Loss rate: %f\n" %(loss))
-        wf.write("Loss rate: %f\n" %(trans))
+        wf.write("Trans rate: %f\n" %(trans))
+        wf.write("MSA length: %d\n" %(msa_len))        
         
     print "-->Simulation starts"
-    minper = 0
     for i in xrange(1, nTrees+1):
         seed += 11
-        
-        if i < (0.1*nTrees):
-            minper = 0
-        elif i >(0.1*nTrees) and i < (0.3*nTrees):
-            minper = 1
-        elif i >(0.3*nTrees) and i < (0.6*nTrees):
-            minper = 2
-        elif i > (0.6*nTrees) and i < nTrees:
-            minper = 3
-        
-        generateGTreesAndAlignmets(workDir, str(i), sTree, seed, dup, trans, loss, theta, k, minper, jarFileName)
+        generateGTreesAndAlignmets(workDir, str(i), sTree, seed, dup, trans, loss, theta, k, min_per_leaf, msa_len, jarFileName)
     print "-->Simulation Done"
 
 if __name__ == '__main__':
